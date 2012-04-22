@@ -17,9 +17,9 @@
 
 sendMidiByte:
 
-	cli
-	push counter
-	push temp
+	cli			; Desactivation des interruptions
+	push counter		; Sauvegarde des 
+	push temp		; registres utilisés
 
 ;************************************************************************;
 ;               Transmission de 1 caractere avec 1 BIT de                ;
@@ -46,17 +46,11 @@ skip_zero:
 	brne	next_bit	; Bit suivant
 
 	rcall 	StopBit		; après dernier bit traité, envoi du STOP BIT
-	rcall	Pause32uS
 
-
-	pop	temp
-	pop	counter
-	ret	
 
 ;************************************************************************;
-; Pause de 32us entre deux bytes
-; Ici, on reutilise le registre counter qui n'est plus utilise pour 
-; le comptages des bits
+;     Pause de 32us entre deux bytes, Ici, on reutilise le registre      ;
+;     counter qui n'est plus utilise pour le comptages des bits          ;
 ;************************************************************************;
 Pause32uS:
 	ldi counter,4
@@ -70,7 +64,13 @@ loop0:
 	nop
 	dec counter
 	brne loop0
-	ret
+
+	pop	temp		; restauration
+	pop	counter		; des registres
+	sei			; Reactivation des interruptions
+	ret			; Puis retour	
+
+
 ;************************************************************************;
 ;     Generation des signaux logiques ‡ 31250 Bauds soit 32uS par bit    ;
 ;************************************************************************;
