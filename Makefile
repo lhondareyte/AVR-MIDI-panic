@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2006-2011 Luc HONDAREYTE
+# Copyright (c) 2006-2012 Luc HONDAREYTE
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or 
@@ -26,30 +26,21 @@
 # $Id: Makefile,v 1.4 2011/04/25 16:21:03 luc Exp luc $
 #
 
-FIRMWARE	:=panic
-MCU		:=attiny13
-HZ		:=4000000
-#
-# Valeurs de hfuse et lfuse
-LFUSE		:=0xff
-HFUSE		:=0xdf
+include config.mk
 
-#CCPATH		:=/usr/local/CrossPack-AVR/bin
-CCPATH		:=/usr/local/bin
-#
-# Vous ne devriez pas avoir besoin de modifier ce qui suit
-CC		:= $(CCPATH)/avr-gcc
-OBJCOPY		:= $(CCPATH)/avr-objcopy
-CFLAGS		:= -Os -D F_CPU=$(HZ)
-CFLAGS		+= -g -mmcu=$(MCU) -Wall -Wstrict-prototypes
-CFLAGS		+= -D __ALL_NOTES_OFF_ENABLE__
-CFLAGS		+= -D __ALL_SOUND_OFF_ENABLE__
-HEADERS         := $(wildcard *.h)
-SOURCES         := $(wildcard *.c) 
-ASMSRCS		:= $(wildcard *.s)
-OBJECTS         := $(patsubst %.c,%.o,$(SOURCES))
-OBJECTS         += $(patsubst %.s,%.o,$(ASMSRCS))
-ASMFLAGS	:=-Os -mmcu=$(MCU) -x assembler-with-cpp -gstabs -I /usr/local/avr/include
+CCPATH		:=/usr/local/CrossPack-AVR/bin
+CC		:=$(CCPATH)/avr-gcc
+OBJCOPY		:=$(CCPATH)/avr-objcopy
+CFLAGS		+=-Os -D F_CPU=$(HZ)
+CFLAGS		+=-g -mmcu=$(MCU) -Wall -Wstrict-prototypes
+
+HEADERS         += $(wildcard *.h)
+SOURCES         += $(wildcard *.c)
+ASMSRCS         += $(wildcard *.s)
+OBJECTS         += $(patsubst %.c,%.o,$(SOURCES))
+OBJECTS		+= $(patsubst %.s,%.o,$(ASMSRCS))
+ASMFLAGS	:=-Os -mmcu=$(MCU) -x assembler-with-cpp -gstabs
+ASMFLAGS	+=-I /usr/local/avr/include
 
 all: $(FIRMWARE).hex
 
@@ -58,7 +49,8 @@ coffee: all load verify wfuse mrproper
 
 $(FIRMWARE).hex: $(FIRMWARE).out 
 	@printf "Generating $(FIRMWARE).hex..."
-	@$(OBJCOPY) -R .eeprom -O ihex $(FIRMWARE).out $(FIRMWARE).hex
+	@$(OBJCOPY) -R .eeprom -O ihex $(FIRMWARE).out  \
+		$(FIRMWARE).hex
 	@echo "done."
 
 $(FIRMWARE).out: $(OBJECTS)
@@ -72,8 +64,8 @@ $(FIRMWARE).out: $(OBJECTS)
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "done."
 
-.s.o:  $(HEADERS) $(ASMSRCS)
-	@printf "Compiling  $<..."
+.s.o: $(HEADERS) $(ASMSRCS)
+	@printf "Compiling $<..."
 	@$(CC) $(ASMFLAGS) -c $< -o $@
 	@echo "done."
 
@@ -82,9 +74,10 @@ asm: $(FIRMWARE).out
 	@$(CCPATH)/avr-objdump -D -S $(FIRMWARE).out > $(FIRMWARE).s
 	@echo "done."
 
-bin: $(FIRMWARE).hex
-	@printf "Generating binary file..."
-	@hex2bin $(FIRMWARE).hex > /dev/null 2>&1
+bin: $(FIRMWARE).out 
+	@printf "Generating $(FIRMWARE).bin ..."
+	@$(OBJCOPY) -R .eeprom -O binary $(FIRMWARE).out  \
+		$(FIRMWARE).bin
 	@echo "done."
 	@ls -l $(FIRMWARE).bin
 #
@@ -113,8 +106,7 @@ WFUSE	:=$(LOADER) -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m
 load:
 	echo $(MODEM)
 	@printf "Loading firmware..."
-	#@$(LOAD) > /dev/null 2>&1
-	@$(LOAD)
+	@$(LOAD) > /dev/null 2>&1
 	@echo "done."
 dump:
 	@printf "Reading $(MCU) device..."
