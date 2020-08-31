@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2006-2012 Luc HONDAREYTE
+# Copyright (c) 2006-2020 Luc HONDAREYTE
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or 
@@ -28,9 +28,8 @@
 
 include config.mk
 
-CCPATH		:=/usr/local/CrossPack-AVR/bin
-CC		:=$(CCPATH)/avr-gcc
-OBJCOPY		:=$(CCPATH)/avr-objcopy
+CC		:= avr-gcc
+OBJCOPY		:= avr-objcopy
 CFLAGS		+=-Os -D F_CPU=$(HZ)
 CFLAGS		+=-g -mmcu=$(MCU) -Wall -Wstrict-prototypes
 
@@ -82,19 +81,8 @@ bin: $(FIRMWARE).out
 	@ls -l $(FIRMWARE).bin
 #
 # Configuration du programmateur ISP
-LOADER=/usr/local/bin/avrdude
-
-ifeq ($(shell uname -s), FreeBSD)
-ISP=-c stk500v2 -P /dev/cuaU0		# Programmateur USB
-#ISP	:=-c stk200 -P /dev/ppi0	# Programmateur parallele
-endif
-
-ifeq ($(shell uname -s), Darwin)
-MODEM	:= $(shell ([ -c /dev/cu*usbmodem* ] && ls /dev/cu*usbmodem*))
-ISP	:=-c avrispmkII -P $(MODEM)
-#ISP	:=-c stk500v2 -P $(MODEM)
-endif
-
+LOADER=avrdude
+ISP=-c usbasp
 LOADER	:=$(LOADER) -p $(MCU) $(ISP)
 LOAD	:=$(LOADER) -i 5 -U flash:w:$(FIRMWARE).hex
 DUMP	:=$(LOADER) -i 5 -U flash:r:$(FIRMWARE).hex:i
@@ -104,7 +92,6 @@ RFUSE	:=$(LOADER) -U lfuse:r:low.txt:b -U hfuse:r:high.txt:b
 WFUSE	:=$(LOADER) -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m
 
 load:
-	echo $(MODEM)
 	@printf "Loading firmware..."
 	@$(LOAD) > /dev/null 2>&1
 	@echo "done."
@@ -115,7 +102,6 @@ dump:
 verify:
 	@printf "Verify $(MCU) device..."
 	@$(VERIFY) > /dev/null 2>&1
-	$(VERIFY) 
 	@echo "done."
 erase:
 	@printf "Erasing $(MCU) device..."
