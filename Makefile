@@ -120,12 +120,6 @@ wfuse:
 clean :
 	@printf "Cleaning source tree..."
 	@rm -f *.map *.bin *~ *.out *.gch *.o \
-		low.txt high.txt $(FIRMWARE) $(FIRMWARE).asm
+		low.txt high.txt $(FIRMWARE) $(FIRMWARE).asm *.hex
 	@echo "done."
-
-mrproper : clean
-	@rm -f *.hex
-
-archive: mrproper
-	@tar cvzf ../../$(FIRMWARE).tgz ../../$(FIRMWARE)
 #EOF
