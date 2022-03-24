@@ -1,60 +1,57 @@
 ;
 ; PANIC MIDI - AVR Version
 ; 
-; Copyright (c) 2012 Luc Hondareyte <luc.hondareyte@laposte.net>
+; Copyright (c) 2012-2022 Luc Hondareyte
 ; All rights reserved.
 ;
 ; $Id$
 ;
 
 #include <avr/io.h>
-#include "midi.h"
-#define	counter	r16
-#define	temp	r17
 
-.extern	tx_buffer
+#define	counter	  r16 	// bit counter
+#define	temp	  r17	// char buffer
+#define	mask      0xff	// mask to address midi output
+#define MIDI_IN   _SFR_IO_ADDR(PINB),2
+#define MIDI_OUT  _SFR_IO_ADDR(PORTB),3
+
+.extern tx_buffer
 .global sendMidiByte
 
 sendMidiByte:
 
-	cli			; Desactivation des interruptions
-	push counter		; Sauvegarde des 
-	push temp		; registres utilisés
+	cli			; Disable interruptions
+	push counter		; saving registers
+	push temp		; 
 
-;************************************************************************;
-;               Transmission de 1 caractere avec 1 BIT de                ;
-;                        START et un bit de STOP                         ;
-;************************************************************************;
+	ldi 	counter, 8	; load bit counter
+	ldi 	temp, tx_buffer ; load char to send
 
-	; initialisation du compteur de bits
-	ldi 	counter, 8
-	ldi 	temp, tx_buffer
-	rcall	StartBit
+	rcall	start_bit       ; let's go
 
 next_bit:
 
-    	;;nop			; **** Ajustement ******
-
-	lsr	temp		; décalage pour tester la retenue
-	brcc	skip_un
-	rcall	UnLogic		; si C=1 on envoie un "1"
-	rjmp	skip_zero
-skip_un:
-	rcall 	ZeroLogic	; sinon, on envoie "0"
-skip_zero:
+	lsr	temp		; shift to carry
+	brcc	skip_high 	; If carry = 1 -> high_bit else low_bit
+	rcall	high_bit	
+	rjmp	skip_low
+skip_high:
+	rcall 	low_bit	        
+skip_low:
 	dec	counter
-	brne	next_bit	; Bit suivant
+	brne	next_bit	; next bit
 
-	rcall 	StopBit		; après dernier bit traité, envoi du STOP BIT
+	rcall 	stop_bit	; go to stop_bit after last bit
 
 
-;************************************************************************;
-;     Pause de 32us entre deux bytes, Ici, on reutilise le registre      ;
-;     counter qui n'est plus utilise pour le comptages des bits          ;
-;************************************************************************;
-Pause32uS:
+;
+; 32us delay beetween two bytes. We can use counter register 
+; since it's no more used for transmission
+;
+
 	ldi counter,4
-loop0:
+_delay_32us:
+
 	nop
 	nop
 	nop
@@ -63,33 +60,32 @@ loop0:
 	nop
 	nop
 	dec counter
-	brne loop0
+	brne _delay_32us
 
-	pop	temp		; restauration
-	pop	counter		; des registres
-	sei			; Reactivation des interruptions
-	ret			; Puis retour	
+	pop	temp		; restore registers
+	pop	counter		
+	sei			; enable interrupts
+	ret			; back to main()
 
 
-;************************************************************************;
-;     Generation des signaux logiques ‡ 31250 Bauds soit 32uS par bit    ;
-;************************************************************************;
+;
+; Bit generation ‡ 32us per bit @  31200B/s
+;
 
-StartBit:
-	nop
-	nop
-	nop
-	nop
-	nop
-
-ZeroLogic:
+start_bit:
 	nop
 	nop
 	nop
 	nop
 	nop
 
-	cbi MIDI_OUT
+low_bit:
+	nop
+	nop
+	nop
+        nop
+	nop
+        cbi MIDI_OUT
 
 	nop
 	nop
@@ -111,7 +107,7 @@ ZeroLogic:
 
 	ret		
 
-StopBit:
+stop_bit:
 	nop
 	nop
 	nop
@@ -120,19 +116,13 @@ StopBit:
 
 	nop
 
-UnLogic:
+high_bit:
 
 	nop
 	nop
+        nop
 	nop
-	nop
-	sbi MIDI_OUT
-
-	nop
-	nop
-	nop
-	nop
-	nop
+        sbi MIDI_OUT
 
 	nop
 	nop
@@ -148,4 +138,10 @@ UnLogic:
 
 	nop
 	nop
+	nop
+	nop
+	nop
+
+	pop temp		
+	pop counter	
 	ret			; 30uS
