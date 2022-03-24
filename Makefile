@@ -30,14 +30,14 @@ include config.mk
 
 CC		:= avr-gcc
 OBJCOPY		:= avr-objcopy
+OBJDUMP		:= avr-objdump
 CFLAGS		+=-Os -D F_CPU=$(HZ)
 CFLAGS		+=-g -mmcu=$(MCU) -Wall -Wstrict-prototypes
 
-HEADERS         += $(wildcard *.h)
-SOURCES         += $(wildcard *.c)
-ASMSRCS         += $(wildcard *.s)
-OBJECTS         += $(patsubst %.c,%.o,$(SOURCES))
-OBJECTS		+= $(patsubst %.s,%.o,$(ASMSRCS))
+HEADERS         += midi.h panic.h
+SOURCES         += panic.c
+ASMSRCS         += rx2tx.s sendMidiByte.s
+OBJECTS         += panic.o rx2tx.o sendMidiByte.o
 ASMFLAGS	:=-Os -mmcu=$(MCU) -x assembler-with-cpp -gstabs
 ASMFLAGS	+=-I /usr/local/avr/include
 
@@ -64,13 +64,13 @@ $(FIRMWARE).out: $(OBJECTS)
 	@echo "done."
 
 .s.o: $(HEADERS) $(ASMSRCS)
-	@printf "Compiling $<..."
+	@printf "Compiling  $<..."
 	@$(CC) $(ASMFLAGS) -c $< -o $@
 	@echo "done."
 
 asm: $(FIRMWARE).out
 	@printf "Generating assembler source file..."
-	@$(CCPATH)/avr-objdump -D -S $(FIRMWARE).out > $(FIRMWARE).s
+	@$(OBJDUMP) -D -S $(FIRMWARE).out > $(FIRMWARE).s
 	@echo "done."
 
 bin: $(FIRMWARE).out 
