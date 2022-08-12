@@ -41,16 +41,6 @@ ISR (INT0_vect)
 			tx_buffer=0x00;
 			sendMidiByte();	
 		}
-		for (c=0; c<16 ; c++)
-		{
-			tx_buffer=MIDI_CTRLCHG_MSG+c;
-			sendMidiByte();	
-			tx_buffer=ALL_SOUND_OFF;
-			sendMidiByte();	
-			tx_buffer=0x00;
-			sendMidiByte();	
-		}
-
 #endif
 
 #ifdef __ALL_NOTES_OFF_ENABLE__
@@ -66,6 +56,7 @@ ISR (INT0_vect)
 		}
 #endif
 
+#ifdef __LEGACY__
 		// Send NOTEOFF for each note
 		for (c=0; c<16 ; c++)
 		{
@@ -83,6 +74,7 @@ ISR (INT0_vect)
 	}
 	loop_until_bit_is_set(PORT_SW,FIRE_SW);
 }
+#endif
 
 int main(void)
 {
