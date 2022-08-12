@@ -1,7 +1,7 @@
 /*
  * PANIC AVR - AVR Version
  *
- * Copyright (c) 2012 Luc Hondareyte <luc.hondareyte@laposte.net>
+ * Copyright (c) 2012-2020 Luc Hondareyte
  * All rights reserved.
  *
  * $Id$
@@ -9,16 +9,6 @@
  
 #ifndef __MIDI_H__
  #define __MIDI_H__
-
-#include <avr/io.h>
-
-#ifndef __AVR_ATtiny13__
-#error "Device not supported for this application"
-#endif
-
-#define MIDI_OUT	_SFR_IO_ADDR(PORTB),3
-#define MIDI_IN		_SFR_IO_ADDR(PORTB),2
-
 
 #define ALL_SOUND_OFF		0x78
 #define ALL_NOTES_OFF		0x7B
