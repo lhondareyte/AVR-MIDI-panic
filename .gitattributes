@@ -1,4 +1,4 @@
 src/Makefile linguist-detectable=false
-src/*.c linguist-detectable=true
 src/*.s linguist-detectable=true
+src/*.c linguist-detectable=true
 src/*.h linguist-detectable=true
