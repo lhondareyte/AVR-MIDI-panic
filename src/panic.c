@@ -18,7 +18,7 @@ ISR (INT0_vect)
 	uint8_t c;
 
 	// Debounce
-	delay_ms(100);
+	_delay_ms(100);
 	if (bit_is_clear(PORT_SW,FIRE_SW)) {
 		// Send RESET if needed
 		if (bit_is_clear(PORT_SW,RESET_SW)) {
