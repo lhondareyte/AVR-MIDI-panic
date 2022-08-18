@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name AVR-MIDI-panic)(type KiCad)(uri ${KIPRJMOD}/AVR-MIDI-panic.pretty)(options "")(descr ""))
+)

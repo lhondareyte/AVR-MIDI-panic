@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name AVR-MIDI-panic)(type Legacy)(uri ${KIPRJMOD}/AVR-MIDI-panic.lib)(options "")(descr ""))
+)
