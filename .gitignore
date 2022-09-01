@@ -1,5 +1,5 @@
 .DS_Store
 *hex
-*o
+*.o
 *.out
 *.map
