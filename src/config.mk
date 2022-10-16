@@ -29,8 +29,5 @@
 FIRMWARE	:=panic
 MCU		:=attiny13
 #MCU		:=attiny4
-HZ		:=4000000
-#
-# Valeurs de hfuse et lfuse
-LFUSE		:=0xff
-HFUSE		:=0xdf
+
+include Mk/$(MCU).mk

@@ -26,6 +26,8 @@
 # $Id: Makefile,v 1.4 2011/04/25 16:21:03 luc Exp luc $
 #
 
+default: all
+
 include config.mk
 
 CC		:= avr-gcc
@@ -76,22 +78,11 @@ asm: $(FIRMWARE).out
 bin: $(FIRMWARE).out 
 	@printf "Generating $(FIRMWARE).bin ..."
 	@$(OBJCOPY) -R .eeprom -O binary $(FIRMWARE).out  \
-		$(FIRMWARE).bin
+		$(OBJCOPY_OPTS) $(FIRMWARE).bin
 	@echo "done."
 	@ls -l $(FIRMWARE).bin
-#
-# Configuration du programmateur ISP
-LOADER=avrdude
-ISP=-c usbasp
-LOADER	:=$(LOADER) -p $(MCU) $(ISP)
-LOAD	:=$(LOADER) -i 5 -U flash:w:$(FIRMWARE).hex
-DUMP	:=$(LOADER) -i 5 -U flash:r:$(FIRMWARE).hex:i
-VERIFY	:=$(LOADER) -i 5 -U flash:v:$(FIRMWARE).hex
-ERASE	:=$(LOADER) -i 5 -e
-RFUSE	:=$(LOADER) -U lfuse:r:low.txt:b -U hfuse:r:high.txt:b
-WFUSE	:=$(LOADER) -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m
 
-load:
+load: bin
 	@printf "Loading firmware..."
 	@$(LOAD) > /dev/null 2>&1
 	@echo "done."
@@ -120,6 +111,7 @@ wfuse:
 clean :
 	@printf "Cleaning source tree..."
 	@rm -f *.map *.bin *~ *.out *.gch *.o \
-		low.txt high.txt $(FIRMWARE) $(FIRMWARE).asm *.hex
+		low.txt high.txt $(FIRMWARE) \
+		fuses.txt $(FIRMWARE).asm *.hex
 	@echo "done."
 #EOF

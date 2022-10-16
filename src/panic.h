@@ -10,13 +10,9 @@
 #ifndef __PANIC_H__
 #define __PANIC_H__
 
-#include <avr/io.h>
-#include <stdlib.h>
-#include <avr/interrupt.h>
-#include <stdint.h>
-#include <util/delay.h>
-
-#if defined (__AVR_ATtiny13__) || defined (__AVR_ATtiny4__)
+#if defined (__AVR_ATtiny13__) || defined (__AVR_ATtiny4__) || defined (__AVR_ATtiny13a__)
+#undef F_CPU
+#define F_CPU	4800000UL
 
 extern void rx2tx(void);
 extern void sendMidiByte(void);
@@ -30,5 +26,11 @@ extern void sendMidiByte(void);
 #else
 #error "Device not supported"
 #endif
+
+#include <avr/io.h>
+#include <stdlib.h>
+#include <avr/interrupt.h>
+#include <stdint.h>
+#include <util/delay.h>
 
 #endif /* __PANIC_H__ */
