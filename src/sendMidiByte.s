@@ -1,56 +1,66 @@
 ;
 ; PANIC MIDI - AVR Version
 ; 
-; Copyright (c) 2012-2022 Luc Hondareyte
+; Copyright (c) 2012-2023 Luc Hondareyte
 ; All rights reserved.
 ;
 ; $Id$
 ;
 
+#include "io.h"
 #include <avr/io.h>
 
 #define	counter	  r16 	// bit counter
 #define	temp	  r17	// char buffer
 #define	mask      0xff	// mask to address midi output
-#define MIDI_IN   _SFR_IO_ADDR(PINB),2
-#define MIDI_OUT  _SFR_IO_ADDR(PORTB),3
 
 .extern tx_buffer
 .global sendMidiByte
 
 sendMidiByte:
 
-	cli			; Disable interruptions
-	push counter		; saving registers
+	cli			; Disable interrupts
+
+	push counter		; Saving registers
 	push temp		; 
 
+        sbi 	MIDI_OUT
 	ldi 	counter, 8	; load bit counter
 	ldi 	temp, tx_buffer ; load char to send
 
-	rcall	start_bit       ; let's go
+	rcall	StartBit        ; let's go
 
-next_bit:
+NextBit:
 
-	lsr	temp		; shift to carry
-	brcc	skip_high 	; If carry = 1 -> high_bit else low_bit
-	rcall	high_bit	
-	rjmp	skip_low
-skip_high:
-	rcall 	low_bit	        
-skip_low:
+	sbrc 	temp, 0		; If temp[0] = 1 -> Call Zero
+	rcall	One		; else One
+	sbrs 	temp, 0
+	rcall	Zero	
+
+	lsr	temp		; shift to right for next bit
 	dec	counter
-	brne	next_bit	; next bit
+	brne	NextBit	
 
-	rcall 	stop_bit	; go to stop_bit after last bit
+end:
 
+	rcall 	StopBit 	; go to StopBit after last bit
+	rcall	delay_32us	; 32 us delay between two bits
+
+	pop	temp		; restore registers
+	pop	counter		
+	sei			; enable interrupts
+	ret                     ; back to main
 
 ;
-; 32us delay beetween two bytes. We can use counter register 
+; Delay between two bytes. We can use counter register 
 ; since it's no more used for transmission
 ;
 
+delay_32us:
+
 	ldi counter,4
-_delay_32us:
+
+_loop0:
 
 	nop
 	nop
@@ -59,27 +69,23 @@ _delay_32us:
  
 	nop
 	nop
+
 	dec counter
-	brne _delay_32us
-
-	pop	temp		; restore registers
-	pop	counter		
-	sei			; enable interrupts
-	ret			; back to main()
-
+	brne _loop0
+	ret		
 
 ;
 ; Bit generation ‡ 32us per bit @  31200B/s
 ;
 
-start_bit:
+StartBit:
 	nop
 	nop
 	nop
 	nop
 	nop
 
-low_bit:
+Zero:
 	nop
 	nop
 	nop
@@ -107,7 +113,7 @@ low_bit:
 
 	ret		
 
-stop_bit:
+StopBit:
 	nop
 	nop
 	nop
@@ -116,7 +122,7 @@ stop_bit:
 
 	nop
 
-high_bit:
+One:
 
 	nop
 	nop
@@ -142,6 +148,4 @@ high_bit:
 	nop
 	nop
 
-	pop temp		
-	pop counter	
-	ret			; 30uS
+	ret

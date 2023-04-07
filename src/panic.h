@@ -10,22 +10,22 @@
 #ifndef __PANIC_H__
 #define __PANIC_H__
 
-#if defined (__AVR_ATtiny13__) || defined (__AVR_ATtiny4__) || defined (__AVR_ATtiny13a__)
+#if defined (__AVR_ATtiny13__) || defined (__AVR_ATtiny13a__)
 #undef F_CPU
 #define F_CPU	4800000UL
-
-extern void rx2tx(void);
-extern void sendMidiByte(void);
-
-#define RESET_SW  0
-#define FIRE_SW   1
-#define PORT_SW   PINB
-#define MIDI_IN   _SFR_IO_ADDR(PINB),2
-#define MIDI_OUT  _SFR_IO_ADDR(PORTB),3
-
+#define INTMSKR         GIMSK           // Interupt mask register
+#define INTRGST         MCUCR           // Interrupt register
 #else
 #error "Device not supported"
 #endif
+extern void rx2tx(void);
+extern void sendMidiByte(void);
+
+#define setBit(octet,bit)     ( octet |= (1<<bit))
+#define clearBit(octet,bit)   ( octet &= ~(1<<bit))
+#define toggleBit(octet,bit)  ( octet ^= (1<<bit))
+#define enable_INT0()         setBit(INTMSKR,INT0)
+#define disable_INT0()        clearBit(INTMSKR,INT0)
 
 #include <avr/io.h>
 #include <stdlib.h>

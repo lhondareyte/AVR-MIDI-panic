@@ -7,10 +7,8 @@
 ; $Id$
 ;
 
+#include "io.h"
 #include <avr/io.h>
-
-#define MIDI_IN   _SFR_IO_ADDR(PINB),2
-#define MIDI_OUT  _SFR_IO_ADDR(PORTB),3
 
 .global rx2tx
 
