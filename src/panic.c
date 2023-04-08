@@ -7,26 +7,30 @@
  * $Id$
  */
 
-#include "panic.h"
+#include "io.h"
 #include "midi.h"
+#include "panic.h"
 
-volatile uint8_t tx_buffer;
+uint8_t tx_buffer;
+volatile uint8_t ready = 0x00;
 
-ISR (INT0_vect)
-{
+ISR (INT0_vect) {
+	ready = 0xff;
+	setBit(PORTB,4);
+	cli();
+}
+
+inline void sendMessages(void) {
+
 	// Loop variables
 	uint8_t c;
 
-	// Debounce
-	_delay_ms(100);
-	if (bit_is_clear(PORT_SW,FIRE_SW)) {
-		// Send RESET if needed
-		if (bit_is_clear(PORT_SW,RESET_SW)) {
-			tx_buffer=MIDI_RESET_MSG;
-			sendMidiByte();	
-		}
+	if (bit_is_clear(PORT_SW,RESET_SW)) {
+		tx_buffer=MIDI_RESET_MSG;
+		sendMidiByte();	
 	}
-	else {
+	else 
+	{
 
 #ifdef __ALL_SOUND_OFF_ENABLE__
 		// Send ALL-SOUND-OFF
@@ -50,6 +54,9 @@ ISR (INT0_vect)
 			sendMidiByte();	
 		}
 
+		tx_buffer = 0b10110000;
+		sendMidiByte();	
+
 #ifdef __LEGACY__
 		// Send NOTEOFF for each note
 		uint8_t i;
@@ -66,12 +73,35 @@ ISR (INT0_vect)
 		}
 #endif
 	}
-	loop_until_bit_is_set(PORT_SW,FIRE_SW);
 }
 
 int main(void)
 {
-	// Copy each bit to output
-	rx2tx();
+	// PINB3+4 on output
+	DDRB=0b00011000;
+
+	// Configure INT0
+	INTRGST=0x00;
+	INTMSKR=0x40;
+
+	// Pullup resistor on input pins
+	PORTB=0x06;
+
+	clearBit(PORTB,4);
+	sei();
+
+	while(1) {
+		if ( ready == 0xff ) {
+			ready = 0x00;
+			sendMessages();
+			// debounce
+			clearBit(PORTB,4);
+			_delay_ms(50);
+			sei();
+		}
+
+		// Copy each bit to output
+		rx2tx();
+	}
 }
 

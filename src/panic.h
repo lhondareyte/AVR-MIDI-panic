@@ -20,6 +20,7 @@
 #endif
 extern void rx2tx(void);
 extern void sendMidiByte(void);
+void sendMessages(void);
 
 #define setBit(octet,bit)     ( octet |= (1<<bit))
 #define clearBit(octet,bit)   ( octet &= ~(1<<bit))

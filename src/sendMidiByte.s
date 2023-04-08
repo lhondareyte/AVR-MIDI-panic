@@ -12,43 +12,40 @@
 
 #define	counter	  r16 	// bit counter
 #define	temp	  r17	// char buffer
-#define	mask      0xff	// mask to address midi output
 
 .extern tx_buffer
+
 .global sendMidiByte
 
 sendMidiByte:
+	cli                     ; Disable interrupts
 
-	cli			; Disable interrupts
+	push counter            ; Saving registers
+	push temp 
 
-	push counter		; Saving registers
-	push temp		; 
+        sbi MIDI_OUT
+	ldi counter, 8          ; load bit counter
+	lds temp, tx_buffer     ; load char to send
 
-        sbi 	MIDI_OUT
-	ldi 	counter, 8	; load bit counter
-	ldi 	temp, tx_buffer ; load char to send
-
-	rcall	StartBit        ; let's go
+	rcall StartBit          ; c'est parti!
 
 NextBit:
+	sbrc temp, 0            ; If temp[0] = 0 -> Call Zero
+	rcall One               ; else One
+	sbrs temp, 0
+	rcall Zero	
 
-	sbrc 	temp, 0		; If temp[0] = 1 -> Call Zero
-	rcall	One		; else One
-	sbrs 	temp, 0
-	rcall	Zero	
-
-	lsr	temp		; shift to right for next bit
-	dec	counter
-	brne	NextBit	
+	lsr temp                ; shift to right for next bit
+	dec counter
+	brne NextBit	
 
 end:
+	rcall StopBit           ; go to StopBit after last bit
+	rcall delay_32us        ; 32 us delay between two bits
 
-	rcall 	StopBit 	; go to StopBit after last bit
-	rcall	delay_32us	; 32 us delay between two bits
-
-	pop	temp		; restore registers
-	pop	counter		
-	sei			; enable interrupts
+	pop temp                ; restore registers
+	pop counter		
+	sei                     ; enable interrupts
 	ret                     ; back to main
 
 ;

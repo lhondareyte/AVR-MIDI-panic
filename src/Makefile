@@ -80,7 +80,6 @@ bin: $(FIRMWARE).out
 	@$(OBJCOPY) -R .eeprom -O binary $(FIRMWARE).out  \
 		$(OBJCOPY_OPTS) $(FIRMWARE).bin
 	@echo "done."
-	@ls -l $(FIRMWARE).bin
 
 load: bin
 	@printf "Loading firmware..."
