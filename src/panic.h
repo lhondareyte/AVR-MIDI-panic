@@ -1,7 +1,7 @@
 /*
  * PANIC AVR - AVR Version
  *
- * Copyright (c) 2012 Luc Hondareyte
+ * Copyright (c)2012-2023 Luc Hondareyte
  * All rights reserved.
  *
  * $Id$
