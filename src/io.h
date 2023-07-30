@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2012-2023 Luc Hondareyte
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
 #define RESET_SW  0
 #define FIRE_SW   1
 #define IN        2
