@@ -1,10 +1,8 @@
 /*
- * PANIC MIDI - AVR Version
- * 
  * Copyright (c) 2012-2023 Luc Hondareyte
- * All rights reserved.
  *
- * $Id$
+ * SPDX-License-Identifier: MIT
+ *
  */
 
 #include "io.h"
