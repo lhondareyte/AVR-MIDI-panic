@@ -1,9 +1,11 @@
-/*
- * Copyright (c) 2012-2023 Luc Hondareyte
- *
- * SPDX-License-Identifier: MIT
- *
- */
+;
+; PANIC MIDI - AVR Version
+; 
+; Copyright (c) 2012-2022 Luc Hondareyte
+; All rights reserved.
+;
+; $Id$
+;
 
 #include "io.h"
 #include <avr/io.h>

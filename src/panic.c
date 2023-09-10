@@ -1,28 +1,28 @@
 /*
- * Copyright (c) 2012-2023 Luc Hondareyte
+ * PANIC MIDI - AVR Version
+ * 
+ * Copyright (c) 2012-2020 Luc Hondareyte
+ * All rights reserved.
  *
- * SPDX-License-Identifier: MIT
- *
+ * $Id$
  */
 
 #include "io.h"
 #include "midi.h"
 #include "panic.h"
 
-uint8_t tx_buffer;
-volatile uint8_t ready = 0x00;
+void SenMessages(void);
+volatile uint8_t tx_buffer;
 
 ISR (INT0_vect) {
-	ready = 0xff;
-	setBit(PORTB,4);
-	cli();
+	sendMessages();
+	_delay_ms(100);
 }
 
 inline void sendMessages(void) {
 
 	// Loop variables
 	uint8_t c;
-
 	if (bit_is_clear(PORT_SW,RESET_SW)) {
 		tx_buffer=MIDI_RESET_MSG;
 		sendMidiByte();	
@@ -33,7 +33,7 @@ inline void sendMessages(void) {
 #ifdef __ALL_SOUND_OFF_ENABLE__
 		// Send ALL-SOUND-OFF
 		for (c=0; c<16 ; c++) {
-			tx_buffer=MIDI_CTRLCHG_MSG+c;
+			tx_buffer=MIDI_CHNMODE_MSG+c;
 			sendMidiByte();	
 			tx_buffer=ALL_SOUND_OFF;
 			sendMidiByte();	
@@ -51,9 +51,6 @@ inline void sendMessages(void) {
 			tx_buffer=0x00;
 			sendMidiByte();	
 		}
-
-		tx_buffer = 0b10110000;
-		sendMidiByte();	
 
 #ifdef __LEGACY__
 		// Send NOTEOFF for each note
@@ -77,28 +74,14 @@ int main(void)
 {
 	// PINB3+4 on output
 	DDRB=0b00011000;
-
-	// Configure INT0
-	INTRGST=0x00;
-	INTMSKR=0x40;
-
 	// Pullup resistor on input pins
-	PORTB=0x06;
-
-	clearBit(PORTB,4);
+	PORTB=0x03;
+	// Configure INT0
+	INTRGST=0x02;
+	INTMSKR=0x40;
 	sei();
 
 	while(1) {
-		if ( ready == 0xff ) {
-			ready = 0x00;
-			sendMessages();
-			// debounce
-			clearBit(PORTB,4);
-			_delay_ms(50);
-			sei();
-		}
-
-		// Copy each bit to output
 		rx2tx();
 	}
 }

@@ -1,15 +1,17 @@
-/*
- * Copyright (c) 2012-2023 Luc Hondareyte
- *
- * SPDX-License-Identifier: MIT
- *
- */
+;
+; PANIC MIDI - AVR Version
+; 
+; Copyright (c) 2012-2023 Luc Hondareyte
+; All rights reserved.
+;
+; $Id$
+;
 
 #include "io.h"
 #include <avr/io.h>
 
-#define	counter	  r16 	// bit counter
-#define	temp	  r17	// char buffer
+#define	counter	  r18 	// bit counter
+#define	temp	  r19	// char buffer
 
 .extern tx_buffer
 
@@ -21,9 +23,11 @@ sendMidiByte:
 	push counter            ; Saving registers
 	push temp 
 
-        sbi MIDI_OUT
 	ldi counter, 8          ; load bit counter
 	lds temp, tx_buffer     ; load char to send
+
+        sbi MIDI_OUT
+        sbi LED_OUT
 
 	rcall StartBit          ; c'est parti!
 
@@ -35,12 +39,14 @@ NextBit:
 
 	lsr temp                ; shift to right for next bit
 	dec counter
-	brne NextBit	
+	breq end	
+	rjmp NextBit
 
 end:
+	cbi LED_OUT
+	cbi MIDI_OUT
 	rcall StopBit           ; go to StopBit after last bit
 	rcall delay_32us        ; 32 us delay between two bits
-
 	pop temp                ; restore registers
 	pop counter		
 	sei                     ; enable interrupts
