@@ -101,7 +101,7 @@ rfuse:
 	@printf "Reading fuse..."
 	@$(RFUSE) > /dev/null 2>&1
 	@echo "done."
-wfuse:
+wfuse: fuses.txt
 	@printf "Writing fuse..."
 	@$(WFUSE) > /dev/null 2>&1
 	@echo "done."
