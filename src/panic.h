@@ -1,16 +1,16 @@
 /*
- * Copyright (c) 2012-2023 Luc Hondareyte
+ * PANIC AVR - AVR Version
  *
- * SPDX-License-Identifier: MIT
+ * Copyright (c) 2012 Luc Hondareyte
+ * All rights reserved.
  *
+ * $Id$
  */
  
 #ifndef __PANIC_H__
 #define __PANIC_H__
 
 #if defined (__AVR_ATtiny13__) || defined (__AVR_ATtiny13a__)
-#undef F_CPU
-#define F_CPU	4800000UL
 #define INTMSKR         GIMSK           // Interupt mask register
 #define INTRGST         MCUCR           // Interrupt register
 #else
@@ -27,9 +27,9 @@ void sendMessages(void);
 #define disable_INT0()        clearBit(INTMSKR,INT0)
 
 #include <avr/io.h>
-#include <stdlib.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <util/delay.h>
 
 #endif /* __PANIC_H__ */
