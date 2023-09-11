@@ -1,6 +1,6 @@
 # MIDI panic device
 
-Port to AVR from a previous [project based on PIC 12C508
+Port to AVR attiny13 from a previous [project based on PIC 12C508
 ](https://github.com/lhondareyte/MIDI-Panic)
 
 
@@ -12,6 +12,10 @@ Install `avr-gcc` on your system, then
     cd AVR-MIDI-panic/src
     make
     make load
+    make wfuse
 
-The `load` target assume that you have a TL866 programmer with [`minipro`](https://gitlab.com/DavidGriffith/minipro)installed
+The `load` (and `wfuse`) target assume that you have a TL866 programmer with [`minipro`](https://gitlab.com/DavidGriffith/minipro)installed
 
+## License
+
+* MIT License
