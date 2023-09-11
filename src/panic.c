@@ -16,7 +16,8 @@ volatile uint8_t tx_buffer;
 
 ISR (INT0_vect) {
 	sendMessages();
-	_delay_ms(100);
+	_delay_ms(50);
+	loop_until_bit_is_set(PORT_SW,FIRE_SW);
 }
 
 inline void sendMessages(void) {
