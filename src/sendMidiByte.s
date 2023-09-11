@@ -87,12 +87,12 @@ StartBit:
 	nop
 
 Zero:
+        cbi MIDI_OUT
 	nop
 	nop
 	nop
         nop
 	nop
-        cbi MIDI_OUT
 
 	nop
 	nop
@@ -125,11 +125,12 @@ StopBit:
 
 One:
 
+        sbi MIDI_OUT
 	nop
 	nop
         nop
 	nop
-        sbi MIDI_OUT
+	nop
 
 	nop
 	nop
