@@ -77,15 +77,20 @@ int main(void)
 {
 	// PINB3+4 on output
 	DDRB=0b00011000;
+
+#ifdef __PASS_THROUGH__
 	// Pullup resistor on input pins
 	PORTB=0x03;
+#endif
 	// Configure INT0
 	INTRGST=0x02;
 	INTMSKR=0x40;
 	sei();
 
 	while(1) {
+#ifdef __PASS_THROUGH__
 		rx2tx();
+#endif
 	}
 }
 

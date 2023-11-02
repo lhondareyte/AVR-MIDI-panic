@@ -16,6 +16,7 @@
 #else
 #error "Device not supported"
 #endif
+
 extern void rx2tx(void);
 extern void sendMidiByte(void);
 void sendMessages(void);
