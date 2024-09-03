@@ -12,11 +12,7 @@ OBJDUMP		:= avr-objdump
 CFLAGS		+=-Os -D F_CPU=$(HZ)
 CFLAGS		+=-g -mmcu=$(MCU) -Wall -Wstrict-prototypes
 
-HEADERS         += midi.h panic.h
-SOURCES         += panic.c
-ASMSRCS         += rx2tx.s sendMidiByte.s
-OBJECTS         += panic.o rx2tx.o sendMidiByte.o
-ASMFLAGS	:=-Os -mmcu=$(MCU) -x assembler-with-cpp -gstabs
+ASMFLAGS	:=-Os -mmcu=$(MCU) -x assembler-with-cpp
 ASMFLAGS	+=-I /usr/local/avr/include
 
 all: $(FIRMWARE).hex
